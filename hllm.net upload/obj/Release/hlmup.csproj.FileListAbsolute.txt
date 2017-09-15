@@ -1,0 +1,5 @@
+C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\bin\Release\hlmup.exe
+C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\bin\Release\hlmup.pdb
+C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Release\hlmup.exe
+C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Release\hlmup.pdb
+C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Release\hlmup.csprojResolveAssemblyReference.cache

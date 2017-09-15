@@ -1,0 +1,5 @@
+c:\users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\bin\Debug\hllm.net upload.exe
+c:\users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\bin\Debug\hllm.net upload.pdb
+c:\users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Debug\hllm.net upload.csprojResolveAssemblyReference.cache
+c:\users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Debug\hllm.net upload.exe
+c:\users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Debug\hllm.net upload.pdb
