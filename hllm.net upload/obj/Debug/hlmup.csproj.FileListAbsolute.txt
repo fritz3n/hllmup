@@ -5,3 +5,7 @@ C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net 
 C:\Users\fritzen\documents\visual studio 2017\Projects\hllm.net upload\hllm.net upload\obj\Debug\hlmup.pdb
 C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllm.net upload\hllm.net upload\bin\Debug\hlmup.exe.CodeAnalysisLog.xml
 C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllm.net upload\hllm.net upload\bin\Debug\hlmup.exe.lastcodeanalysissucceeded
+C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\bin\Debug\hlmup.exe
+C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\bin\Debug\hlmup.pdb
+C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\obj\Debug\hlmup.exe
+C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\obj\Debug\hlmup.pdb
