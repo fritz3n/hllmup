@@ -7,3 +7,4 @@ C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\bi
 C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\bin\Release\hlmup.pdb
 C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\obj\Release\hlmup.exe
 C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\obj\Release\hlmup.pdb
+C:\Users\fritzen\Documents\Visual Studio 2017\Projects\hllmup\hllm.net upload\obj\Release\hlmup.csproj.CoreCompileInputs.cache

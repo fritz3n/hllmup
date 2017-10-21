@@ -8,8 +8,8 @@ using System.Text.RegularExpressions;
 using System.Drawing;
 using System.Diagnostics;
 using System.Drawing.Imaging;
-using Microsoft.VisualBasic;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace hllm.net_upload
 {
@@ -26,7 +26,8 @@ namespace hllm.net_upload
         [STAThread]
         static void Main()
         {
-        string postRequest(string url, NameValueCollection dta)
+
+                string postRequest(string url, NameValueCollection dta)
             {
                 string result = "";
                 using (WebClient client = new WebClient())
@@ -43,9 +44,9 @@ namespace hllm.net_upload
 
             string login()
             {
-                Console.WriteLine("Username:");
+                Console.Write("Username: ");
                 string name = Console.ReadLine();
-                Console.WriteLine("Password:");
+                Console.Write("Password: ");
                 string pass = null;
                 while (true)
                 {
@@ -55,7 +56,7 @@ namespace hllm.net_upload
                     pass += key.KeyChar;
                 }
 
-                Console.WriteLine("Checking...");
+                Console.WriteLine("\nChecking...");
 
                 string result = postRequest("https://hllm.ddns.net/php/upload/login", new NameValueCollection()
                         {
@@ -64,6 +65,9 @@ namespace hllm.net_upload
                         });
                 if (result != "false")
                 {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    write("Ok");
+                    Console.ForegroundColor = ConsoleColor.White;
                     return result;
                 }
                 else
@@ -73,9 +77,23 @@ namespace hllm.net_upload
                 }
             }
 
+            toBack();
+
             Console.ForegroundColor = ConsoleColor.White;
             String docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             String[] arguments = Environment.GetCommandLineArgs();
+
+            if (arguments.Length > 1 && arguments[1] == "Do_the_Registry_thing")
+            {
+
+                if (IsAdministrator())
+                {
+                    //writeE("registering...");
+                    RegistryHandler.RegisterRC();
+                }
+
+                Environment.Exit(0);
+            }
 
             bool commandLine = false;
 
@@ -86,20 +104,57 @@ namespace hllm.net_upload
             bool error = false;
             bool wait = false;
 
-
-
             
-
-            if (String.IsNullOrEmpty(RegistryHandler.getValue("uid")) | String.IsNullOrEmpty(RegistryHandler.getValue("utk")))
+            if (RegistryHandler.getValue("active") != "true" | String.IsNullOrEmpty(RegistryHandler.getValue("uid")) | String.IsNullOrEmpty(RegistryHandler.getValue("utk")))
             {
-                Console.WriteLine("It seems like this is you first time");
+                writeE("It seems like this is you first time");
                 Console.WriteLine("Would you care to give me your data?");
                 string data = login();
                 //Console.WriteLine("Welcome");
                 string[] loginArray = data.Split(',');
                 RegistryHandler.setValue("uid", loginArray[0]);
                 RegistryHandler.setValue("utk", loginArray[1]);
+                RegistryHandler.setValue("active", "true");
                 Filedata = loginArray;
+                write("Do you want to enable explorer right-click functionallity? [y/n]");
+                char response = Console.ReadKey(true).KeyChar;
+                switch (response)
+                {
+                    case 'y':
+                    case 'Y':
+                        write(response + "es");
+                        if (!IsAdministrator())
+                        {
+                            writeE("Not an Administrator");
+                            write("Starting elevated process");
+                            System.Threading.Thread.Sleep(1000);
+
+                            var exeName = System.Reflection.Assembly.GetExecutingAssembly().CodeBase.Substring(8).Replace('/', '\\');
+                            ProcessStartInfo startInfo = new ProcessStartInfo(exeName);
+                            startInfo.Verb = "runas";
+                            startInfo.Arguments = "Do_the_Registry_thing";
+                            Process p = Process.Start(startInfo);
+                            p.WaitForExit();
+                        }
+                        else
+                        {
+                            RegistryHandler.RegisterRC();
+                        }
+
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        write("Ok");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        break;
+
+                    case 'n':
+                    case 'N':
+                        write(response + "o");
+                        break;
+
+                    default:
+                        write("No?");
+                        break;
+                }
                 //Console.ReadLine();
             }
             else
@@ -146,12 +201,16 @@ namespace hllm.net_upload
                     case "logout":
                         RegistryHandler.setValue("uid", "");
                         RegistryHandler.setValue("utk", "");
+                        RegistryHandler.setValue("active", "");
+                        write("Ok");
                         Console.WriteLine("Please log back in");
                         string data = login();
                         //Console.WriteLine("Welcome");
                         string[] loginArray = data.Split(',');
                         RegistryHandler.setValue("uid", loginArray[0]);
                         RegistryHandler.setValue("utk", loginArray[1]);
+                        RegistryHandler.setValue("active", "true");
+
                         Filedata = loginArray;
                         break;
 
@@ -223,7 +282,6 @@ namespace hllm.net_upload
             {
                 for (int i = 1; i < arguments.Length; i++)
                 {
-
                     string path = arguments[i];
                     upload(path);
 
@@ -402,12 +460,16 @@ namespace hllm.net_upload
                         case "logout":
                             RegistryHandler.setValue("uid", "");
                             RegistryHandler.setValue("utk", "");
+                            RegistryHandler.setValue("active", "");
+                            write("Ok");
                             Console.WriteLine("Please log back in");
                             string data = login();
                             //Console.WriteLine("Welcome");
                             string[] loginArray = data.Split(',');
                             RegistryHandler.setValue("uid", loginArray[0]);
                             RegistryHandler.setValue("utk", loginArray[1]);
+                            RegistryHandler.setValue("active", "true");
+
                             Filedata = loginArray;
                             break;
 
@@ -477,6 +539,19 @@ namespace hllm.net_upload
             {
                 Process p = Process.GetCurrentProcess();
                 ShowWindow(p.MainWindowHandle, 9);
+            }
+
+            void toBack()
+            {
+                Process p = Process.GetCurrentProcess();
+                ShowWindow(p.MainWindowHandle, 6);
+            }
+
+            bool IsAdministrator()
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
             }
 
         }

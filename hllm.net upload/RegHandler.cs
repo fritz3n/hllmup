@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Win32;
 using System.Windows.Forms;
+using System.IO;
 
 namespace hllm.net_upload
 {
@@ -30,6 +31,30 @@ namespace hllm.net_upload
                 MessageBox.Show("An Error ucorred while trying to read from the registry!\n" + e.Message + "\n" + e.HelpLink);
                 //Application.Exit();
                 return "";
+            }
+        }
+
+        public static void RegisterRC()
+        {
+            string curPath = System.Reflection.Assembly.GetExecutingAssembly().CodeBase.Substring(8).Replace('/', '\\');
+            string newFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\HllmUp";
+            string newPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\HllmUp\HllmUp.exe";
+
+            if (!System.IO.Directory.Exists(newFolder))
+            {
+                Directory.CreateDirectory(newFolder);
+            }
+
+            System.IO.File.Copy(curPath,newPath, true);
+
+            try
+            {
+                Registry.SetValue(@"HKEY_CLASSES_ROOT\*\shell\Upload\command", null, "\"" + newPath + "\" \"%1\"" );
+                Registry.SetValue(@"HKEY_CLASSES_ROOT\Directory\shell\Upload\command", null, "\"" + newPath + "\" \"%1\"");
+            }//make shure we don't crash but close
+            catch (Exception e)
+            {
+                MessageBox.Show("An Error ucorred while trying to writing to the registry!\n" + e.Message);
             }
         }
     }
