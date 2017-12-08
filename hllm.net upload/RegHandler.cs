@@ -16,7 +16,8 @@ namespace hllm.net_upload
             }//make shure we don't crash but close
             catch (Exception e)
             {
-                MessageBox.Show("An Error ucorred while trying to writing to the registry!\n" + e.Message);
+                //MessageBox.Show("An Error ucorred while trying to writing to the registry!\n" + e.Message);
+                
             }
         }
         //function for getting the regvalue
@@ -28,9 +29,29 @@ namespace hllm.net_upload
             }
             catch (Exception e)
             {
-                MessageBox.Show("An Error ucorred while trying to read from the registry!\n" + e.Message + "\n" + e.HelpLink);
+                //MessageBox.Show("An Error ucorred while trying to read from the registry!\n" + e.Message + "\n" + e.HelpLink);
                 //Application.Exit();
                 return "";
+            }
+        }
+
+        public static void DelKey(string name)
+        {
+            try
+            {
+                using (RegistryKey explorerKey =
+       Registry.CurrentUser.OpenSubKey(name, writable: true))
+                {
+                    if (explorerKey != null)
+                    {
+                        explorerKey.DeleteSubKeyTree("FileExts");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //MessageBox.Show("An Error ucorred while trying to read from the registry!\n" + e.Message + "\n" + e.HelpLink);
+                //Application.Exit();
             }
         }
 
@@ -56,6 +77,19 @@ namespace hllm.net_upload
             {
                 MessageBox.Show("An Error ucorred while trying to writing to the registry!\n" + e.Message);
             }
+        }
+
+        public static void DeregisterRC()
+        {
+            string Folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\HllmUp";
+
+            Directory.Delete(Folder,true);
+
+            DelKey(@"HKEY_CLASSES_ROOT\*\shell\Upload");
+            DelKey(@"HKEY_CLASSES_ROOT\Directory\shell\Upload");
+
+            DelKey(@"HKEY_CURRENT_USER\SOFTWARE\HllmUp");
+
         }
     }
 }

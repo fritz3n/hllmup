@@ -27,22 +27,31 @@ namespace hllm.net_upload
         static void Main()
         {
 
-                string postRequest(string url, NameValueCollection dta)
+            string postRequest(string url, NameValueCollection dta)
             {
                 string result = "";
                 using (WebClient client = new WebClient())
                 {
+                    try
+                    {
+                        byte[] response = client.UploadValues(url, dta);
 
-                    byte[] response = client.UploadValues(url, dta);
+                        result = System.Text.Encoding.UTF8.GetString(response);
 
-                    result = System.Text.Encoding.UTF8.GetString(response);
+                    }
+                    catch (Exception e)
+                    {
+                        writeE(e.ToString() + "\nPress the 'any' key to continue...");
+                        Console.ReadKey(true);
+                        Environment.Exit(0);
+                    }
                 }
                 return result;
             }
 
+            string[] Filedata;
 
-
-            string login()
+            string loginData()
             {
                 Console.Write("Username: ");
                 string name = Console.ReadLine();
@@ -73,43 +82,13 @@ namespace hllm.net_upload
                 else
                 {
                     writeE("Wrong");
-                    return login();
+                    return loginData();
                 }
             }
 
-            toBack();
-
-            Console.ForegroundColor = ConsoleColor.White;
-            String docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            String[] arguments = Environment.GetCommandLineArgs();
-
-            if (arguments.Length > 1 && arguments[1] == "Do_the_Registry_thing")
+            void login()
             {
-
-                if (IsAdministrator())
-                {
-                    //writeE("registering...");
-                    RegistryHandler.RegisterRC();
-                }
-
-                Environment.Exit(0);
-            }
-
-            bool commandLine = false;
-
-            // Console.Beep();
-            //MessageBox.Show(Environment.CommandLine);
-
-            string[] Filedata;
-            bool error = false;
-            bool wait = false;
-
-            
-            if (RegistryHandler.getValue("active") != "true" | String.IsNullOrEmpty(RegistryHandler.getValue("uid")) | String.IsNullOrEmpty(RegistryHandler.getValue("utk")))
-            {
-                writeE("It seems like this is you first time");
-                Console.WriteLine("Would you care to give me your data?");
-                string data = login();
+                string data = loginData();
                 //Console.WriteLine("Welcome");
                 string[] loginArray = data.Split(',');
                 RegistryHandler.setValue("uid", loginArray[0]);
@@ -155,6 +134,41 @@ namespace hllm.net_upload
                         write("No?");
                         break;
                 }
+            }
+
+            toBack();
+
+            Console.ForegroundColor = ConsoleColor.White;
+            String docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            String[] arguments = Environment.GetCommandLineArgs();
+
+            if (arguments.Length > 1 && arguments[1] == "Do_the_Registry_thing")
+            {
+
+                if (IsAdministrator())
+                {
+                    //writeE("registering...");
+                    RegistryHandler.RegisterRC();
+                }
+
+                Environment.Exit(0);
+            }
+
+            bool commandLine = false;
+
+            // Console.Beep();
+            //MessageBox.Show(Environment.CommandLine);
+
+            
+            bool error = false;
+            bool wait = false;
+
+            
+            if (RegistryHandler.getValue("active") != "true" | String.IsNullOrEmpty(RegistryHandler.getValue("uid")) | String.IsNullOrEmpty(RegistryHandler.getValue("utk")))
+            {
+                writeE("It seems like this is you first time");
+                Console.WriteLine("Would you care to give me your data?");
+                login();
                 //Console.ReadLine();
             }
             else
@@ -176,14 +190,8 @@ namespace hllm.net_upload
             {
                 writeE("There was a problem, please login again");
 
-                string data = login();
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("OK");
-                Console.ForegroundColor = ConsoleColor.White;
-                string[] loginArray = data.Split(',');
-                RegistryHandler.setValue("uid", loginArray[0]);
-                RegistryHandler.setValue("utk", loginArray[1]);
-                Filedata = loginArray;
+                login();
+                
                 
                 username = postRequest("https://hllm.ddns.net/php/upload/confirm", new NameValueCollection()
                         {
@@ -194,24 +202,18 @@ namespace hllm.net_upload
 
             Console.WriteLine("Welcome, " + username + "!");
 
+            bool filesInArgs = false;
+
             if (arguments.Length > 1)
             {
+                commandLine = true;
                 switch (arguments[1])
                 {
                     case "logout":
-                        RegistryHandler.setValue("uid", "");
-                        RegistryHandler.setValue("utk", "");
-                        RegistryHandler.setValue("active", "");
+                        RegistryHandler.DeregisterRC();
                         write("Ok");
                         Console.WriteLine("Please log back in");
-                        string data = login();
-                        //Console.WriteLine("Welcome");
-                        string[] loginArray = data.Split(',');
-                        RegistryHandler.setValue("uid", loginArray[0]);
-                        RegistryHandler.setValue("utk", loginArray[1]);
-                        RegistryHandler.setValue("active", "true");
-
-                        Filedata = loginArray;
+                        login();
                         break;
 
                     case "screenshot":
@@ -227,11 +229,13 @@ namespace hllm.net_upload
                             img.Save(path, System.Drawing.Imaging.ImageFormat.Png);
                             upload(path, "screenshots/", true);
                             File.Delete(path);
-                            System.Media.SystemSounds.Hand.Play();
-                            Environment.Exit(0);
+                            //System.Media.SystemSounds.Hand.Play();
+                            //Environment.Exit(0);
                         }
                         else
                         {
+                            error = true;
+                            wait = true;
                             writeE("Theres no picture!");
                         }
 
@@ -245,13 +249,14 @@ namespace hllm.net_upload
                         image.Save(ImgPath, System.Drawing.Imaging.ImageFormat.Png);
                         upload(ImgPath,"screenshots/", true);
                         File.Delete(ImgPath);
-                        System.Media.SystemSounds.Hand.Play();
-                        Environment.Exit(0);
+                        //System.Media.SystemSounds.Hand.Play();
+                        //Environment.Exit(0);
                         
                         break;
 
                     default:
-                        commandLine = true;
+                        //commandLine = true;
+                        filesInArgs = true;
                         break;
 
                 }
@@ -268,6 +273,16 @@ namespace hllm.net_upload
                         upload(path);
                     }
 
+                }
+                else if(Clipboard.ContainsImage())
+                {
+                    string path = Path.GetTempPath() + "img_" + DateTime.Now.ToString("dd-MM-yy_HH,mm,ss") + ".png";
+                    Image img = Clipboard.GetImage();
+                    img.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                    upload(path, "images/", true);
+                    File.Delete(path);
+                    //System.Media.SystemSounds.Hand.Play();
+                    //Environment.Exit(0);
                 }
                 else
                 {
@@ -368,8 +383,12 @@ namespace hllm.net_upload
 
                         Clipboard.SetText(response);
                     }
-                        
-                    
+
+
+                }
+                else
+                {
+                    writeE(Path.GetFileName(path) + " not found!");
                 }
             }
 
@@ -458,19 +477,10 @@ namespace hllm.net_upload
                             break;
 
                         case "logout":
-                            RegistryHandler.setValue("uid", "");
-                            RegistryHandler.setValue("utk", "");
-                            RegistryHandler.setValue("active", "");
+                            RegistryHandler.DeregisterRC();
                             write("Ok");
                             Console.WriteLine("Please log back in");
-                            string data = login();
-                            //Console.WriteLine("Welcome");
-                            string[] loginArray = data.Split(',');
-                            RegistryHandler.setValue("uid", loginArray[0]);
-                            RegistryHandler.setValue("utk", loginArray[1]);
-                            RegistryHandler.setValue("active", "true");
-
-                            Filedata = loginArray;
+                            login();
                             break;
 
                         case "screenshot":
@@ -502,6 +512,7 @@ namespace hllm.net_upload
                             File.Delete(ImgPath);
 
                             break;
+                            
 
                         default:
                             writeE("Unrecognized command: " + command);
